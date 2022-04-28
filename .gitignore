@@ -3,3 +3,11 @@
 
 *.png
 *.svg
+
+#The entire library doesn't need to be saved to the repository. 
+#However, for some changes might need to be made and saved to the 
+#original source code of the lib. 
+qpc_lib/*
+!qpc_lib/src
+!qpc_lib/include
+!qpc_lib/ports
