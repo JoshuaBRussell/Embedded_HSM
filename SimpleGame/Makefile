@@ -49,7 +49,7 @@
 #-----------------------------------------------------------------------------
 # project name:
 #
-PROJECT := blinky
+PROJECT := game
 
 #-----------------------------------------------------------------------------
 # project directories:
@@ -71,7 +71,7 @@ endif
 
 # C source files...
 C_SRCS := \
-	blinky.c \
+	Ship.c \
 	main.c
 
 # C++ source files...
