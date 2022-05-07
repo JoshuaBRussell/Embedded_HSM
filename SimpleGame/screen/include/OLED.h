@@ -88,6 +88,8 @@ void OLED_set_char(const char char_val, const int x, const int y);
 */
 void OLED_set_bitmap(const int x, const int y, const Bitmap * const bitmap_image);
 
+void OLED_clear_frame_buffer();
+
 /*
 Once the frame buffer has been adjusted to the user's liking, 
 this sets teh screen's output.

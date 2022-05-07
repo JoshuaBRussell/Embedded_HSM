@@ -73,6 +73,9 @@ typedef struct{
     QActive super;
 
     QTimeEvt timeEvt;
+
+    int x;
+    int y;
 } Ship;
 
 //Define Ship AO
@@ -99,6 +102,9 @@ static QState Ship_initial(Ship * const me, void const * const par){
     QTimeEvt_armX(&me->timeEvt, BSP_TICKS_PER_SEC/2, BSP_TICKS_PER_SEC/2);
 
     OLED_setup();
+
+    me->x = 0;
+    me->y = 0;
 
     return Q_TRAN(&Ship_Active);
 }
@@ -127,18 +133,23 @@ static QState Ship_Active(Ship * const me, QEvt const * const e){
 
             if (c == 'w'){
                 printf("Move Up\n");
+                me->y--;
             } 
             if (c == 'a'){
                 printf("Move Left\n");
+                me->x--;
             }
             if (c == 's'){
                 printf("Move Down\n");
+                me->y++;
             } 
             if (c == 'd'){
                 printf("Move Right\n");
+                me->x++;
             }
 
-            OLED_set_bitmap(48, 16, &Test_T);
+            OLED_clear_frame_buffer();
+            OLED_set_bitmap(me->x, me->y, &Test_T);
 
             OLED_send_frame();
 

@@ -17,6 +17,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <string.h>
 
 #include "mess_transf.h"
 
@@ -136,6 +137,11 @@ void OLED_setup(){
 
 void OLED_set_pixel(const int x, const int y, const bool pixel_status){
 
+    //Check if x/y coords are in bounds. If not, return.
+    if ((x < 0) || (x >= PIXEL_WIDTH) || (y < 0) || (y >= PIXEL_HEIGHT)){
+        return;
+    }
+
     int const bit_shift_array[] = {7, 6, 5, 4, 3, 2, 1, 0};
     int byte_index = SCREENWIDTH_IN_BYTES*y + x/8;
     uint8_t bit_shift = bit_shift_array[x%8];
@@ -170,18 +176,17 @@ void OLED_set_char(const char char_val, const int x, const int y){
         for (uint8_t col_index = 0; col_index < 8; col_index++){
             row_byte = font16x12[char_index][2*row_index];
             pixel_value = (row_byte >> MSb_bit_shift[col_index]) & 0x01;
-            if((x+col_index < PIXEL_WIDTH) && (y+row_index < PIXEL_HEIGHT)){
-                OLED_set_pixel(x+col_index, y+row_index, pixel_value);
-            }
+
+            OLED_set_pixel(x+col_index, y+row_index, pixel_value);
         }
         
         //Byte2
         for(uint8_t col_index = 8; col_index < 12; col_index++){
             row_byte = font16x12[char_index][2*row_index + 1];
             pixel_value = (row_byte >> MSb_bit_shift[col_index%8]) & 0x01;
-            if((x+col_index < PIXEL_WIDTH) && (y+row_index < PIXEL_HEIGHT)){
-                OLED_set_pixel(x+col_index, y+row_index, pixel_value);
-            }
+
+            OLED_set_pixel(x+col_index, y+row_index, pixel_value);
+
         }
 
     }
@@ -201,16 +206,16 @@ void OLED_set_bitmap(const int x, const int y, const Bitmap * const bitmap_image
             
             for (uint8_t bit_index = 0; bit_index < 8; bit_index++){
                 pixel_value = (row_byte >> MSb_bit_shift[bit_index]) & 0x01;
-                if((x + byte_index*8+bit_index < PIXEL_WIDTH) && (y+row_index < PIXEL_HEIGHT) && pixel_value){
                     
-                    OLED_set_pixel(x + byte_index*8+bit_index, y+row_index, pixel_value);
-                } 
+                OLED_set_pixel(x + byte_index*8+bit_index, y+row_index, pixel_value);
             }
         }
     }
 }
 
-
+void OLED_clear_frame_buffer(){
+    memset(data_buff, 0, SCREENWIDTH_IN_BYTES*PIXEL_HEIGHT);
+}
 
 /*
 Once the frame buffer has been adjusted to the user's liking, 
