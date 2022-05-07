@@ -37,8 +37,9 @@ static int tx_file_descriptor;
 int setup_tx(){
 
     int tx_setup_status = 0;
-
+    
     int fifo_creation_status = mkfifo(FIFO_LOC, 0600);
+
     if(fifo_creation_status < 0){
         int errsv = errno; //Save this before another error has a chance to erase it.
         // The FIFO already existing is not an issue. If the error occurs,
@@ -48,12 +49,13 @@ int setup_tx(){
         }        
     }  
 
-    if (!(tx_setup_status < 0))
+    if (!(tx_setup_status < 0)){
         tx_file_descriptor = open(FIFO_LOC, O_WRONLY);
         if(tx_file_descriptor < 0){
             int errsv = errno;
             printf("FIFO could not be opended: %s\n", strerror(errsv));
             tx_setup_status = -1;
+        }
     }
 
     return tx_setup_status;
@@ -86,7 +88,7 @@ int send_tx(void *tx_buff, size_t num_of_bytes){
 
         //Copy Contents of Payload into TX Buffer
         for(size_t i = 0; i < num_of_bytes; i++){
-            tx_buffer[MESS_HEADER_LEN + i] = *(uint8_t *)(tx_buff+i);
+            tx_buffer[MESS_HEADER_LEN + i] = *((uint8_t *)tx_buff+i);
         }
 
         //Set Tail Bytes
