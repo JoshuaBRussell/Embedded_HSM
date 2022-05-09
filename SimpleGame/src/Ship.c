@@ -10,12 +10,16 @@
 
 
 //Key Press
-#include <sys/select.h>
-#include <termios.h>
+#include <fcntl.h>
+#include <string.h>
+#include <sys/ioctl.h>
+#include <linux/input.h>
 #include <unistd.h>
 
-#define NB_DISABLE 1
-#define NB_ENABLE 0
+#define test_bit(yalv, abs_b) ((((char *)abs_b)[yalv/8] & (1<<yalv%8)) > 0)
+
+#define X_STEP_UPDATE 3
+#define Y_STEP_UPDATE 3
 
 static const uint8_t const Gear_arr[] = {
 	0x00, 0x0c, 0xc0, 0x00, 0x00, 0x48, 0x9c, 0x00, 0x00, 0xea, 0x29, 0x80, 0x02, 0x5f, 0xfa, 0x80, 
@@ -30,42 +34,7 @@ static const uint8_t const Gear_arr[] = {
 static Bitmap Test_T = {Gear_arr, 4, 32};
 
 
-int kbhit(){
-    struct timeval tv;
-    fd_set fds;
-    tv.tv_sec = 0;
-    tv.tv_usec = 0;
-    FD_ZERO(&fds);
-    FD_SET(STDIN_FILENO, &fds); //STDIN_FILENO is 0
-    select(STDIN_FILENO+1, &fds, NULL, NULL, &tv);
-    return FD_ISSET(STDIN_FILENO, &fds);
-}
-
-void nonblock(int state)
-{
-    struct termios ttystate;
-
-    //get the terminal state
-    tcgetattr(STDIN_FILENO, &ttystate);
-
-    if (state==NB_ENABLE)
-    {
-        //turn off canonical mode
-        ttystate.c_lflag &= ~ICANON;
-        //minimum of number input read.
-        ttystate.c_cc[VMIN] = 1;
-    }
-    else if (state==NB_DISABLE)
-    {
-        //turn on canonical mode
-        ttystate.c_lflag |= ICANON;
-    }
-    //set the terminal attributes.
-    tcsetattr(STDIN_FILENO, TCSANOW, &ttystate);
-
-}
-
-enum {BSP_TICKS_PER_SEC = 100};
+enum {BSP_TICKS_PER_SEC = 10};
 
 
 //Declare Ship Active Object
@@ -122,31 +91,29 @@ static QState Ship_Active(Ship * const me, QEvt const * const e){
 
         case TIME_SIG: {
             printf("Ship-Time_Sig\n");
-            char c;
             //Detect Key Press
-            nonblock(NB_ENABLE);
-            int i = kbhit();
-            if(i != 0){
-               c = fgetc(stdin);
-            }
-            nonblock(NB_DISABLE);
+            int fd;
+            fd = open("/dev/input/by-path/pci-0000:00:12.0-usb-0:1:1.0-event-kbd", O_RDONLY);
 
-            if (c == 'w'){
-                printf("Move Up\n");
-                me->y--;
-            } 
-            if (c == 'a'){
-                printf("Move Left\n");
-                me->x--;
+            uint8_t key_b[KEY_MAX/8 + 1];
+
+            memset(key_b, 0, sizeof(key_b));
+            ioctl(fd, EVIOCGKEY(sizeof(key_b)), key_b);
+            close(fd);
+            if(test_bit(KEY_W, key_b)){
+                me->y-=2;
             }
-            if (c == 's'){
-                printf("Move Down\n");
-                me->y++;
-            } 
-            if (c == 'd'){
-                printf("Move Right\n");
-                me->x++;
+            if(test_bit(KEY_A, key_b)){
+                me->x-=2;
             }
+            if(test_bit(KEY_S, key_b)){
+                me->y+=2;
+            }
+            if(test_bit(KEY_D, key_b)){
+                me->x+=2;
+            }
+
+
 
             OLED_clear_frame_buffer();
             OLED_set_bitmap(me->x, me->y, &Test_T);
