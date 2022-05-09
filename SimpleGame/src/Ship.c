@@ -10,13 +10,7 @@
 
 
 //Key Press
-#include <fcntl.h>
-#include <string.h>
-#include <sys/ioctl.h>
-#include <linux/input.h>
-#include <unistd.h>
-
-#define test_bit(yalv, abs_b) ((((char *)abs_b)[yalv/8] & (1<<yalv%8)) > 0)
+#include "BSP.h"
 
 #define X_STEP_UPDATE 3
 #define Y_STEP_UPDATE 3
@@ -91,25 +85,19 @@ static QState Ship_Active(Ship * const me, QEvt const * const e){
 
         case TIME_SIG: {
             printf("Ship-Time_Sig\n");
+            
             //Detect Key Press
-            int fd;
-            fd = open("/dev/input/by-path/pci-0000:00:12.0-usb-0:1:1.0-event-kbd", O_RDONLY);
-
-            uint8_t key_b[KEY_MAX/8 + 1];
-
-            memset(key_b, 0, sizeof(key_b));
-            ioctl(fd, EVIOCGKEY(sizeof(key_b)), key_b);
-            close(fd);
-            if(test_bit(KEY_W, key_b)){
+            BSP_update_KB_state();
+            if(BSP_isUpKey_Pressed()){
                 me->y-=Y_STEP_UPDATE;
             }
-            if(test_bit(KEY_A, key_b)){
+            if(BSP_isLeftKey_Pressed()){
                 me->x-=X_STEP_UPDATE;
             }
-            if(test_bit(KEY_S, key_b)){
+            if(BSP_isDwnKey_Pressed()){
                 me->y+=Y_STEP_UPDATE;
             }
-            if(test_bit(KEY_D, key_b)){
+            if(BSP_isRightKey_Pressed()){
                 me->x+=X_STEP_UPDATE;
             }
 

@@ -74,6 +74,7 @@ C_SRCS := \
 	Ship.c \
 	OLED.c \
 	mess_transf.c \
+	BSP.c \
 	main.c
 
 # C++ source files...
