@@ -36,7 +36,7 @@ keep retrying hoping for the error to correct itself.
 #define MESS_BUFFER_SIZE 1030 //TODO: Make this dependant on the screen size
 
 //This implementation uses pipes. The name of the FIFO
-#define FIFO_LOC "./screen_fifo" 
+#define FIFO_LOC "/home/joshua/MyProjects/Embedded_HSM/Repo/Embedded_HSM/SimpleGame/build/screen_fifo" 
 
 #define MESS_HEADER_LEN 3
 #define MESS_TAIL_LEN   3

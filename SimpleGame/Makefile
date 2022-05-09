@@ -49,17 +49,17 @@
 #-----------------------------------------------------------------------------
 # project name:
 #
-PROJECT := blinky
+PROJECT := game
 
 #-----------------------------------------------------------------------------
 # project directories:
 #
 
 # list of all source directories used by this project
-VPATH := ./src/
+VPATH := ./src/ ./screen/src/
 
 # list of all include directories needed by this project
-INCLUDES := -I./include/
+INCLUDES := -I./include/ -I./screen/include/
 # location of the QP/C framework (if not provided in an env. variable)
 ifeq ($(QPC),)
 QPC := ../qpc_lib/
@@ -71,7 +71,9 @@ endif
 
 # C source files...
 C_SRCS := \
-	blinky.c \
+	Ship.c \
+	OLED.c \
+	mess_transf.c \
 	main.c
 
 # C++ source files...

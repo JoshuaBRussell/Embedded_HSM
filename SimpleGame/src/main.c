@@ -3,7 +3,7 @@
 
 
 #include "qpc.h"
-#include "blinky.h"
+#include "Ship.h"
 #include <stdlib.h> //For exit()
 
 Q_DEFINE_THIS_FILE
@@ -33,8 +33,8 @@ int main(){
     QF_init();
 
     //Call AO Constructor
-    Blinky_ctor();
-    QACTIVE_START(AO_Blinky,
+    Ship_ctor();
+    QACTIVE_START(AO_Ship,
                   1,
                   blinky_queue, Q_DIM(blinky_queue),
                   (void *)0, 0,
