@@ -101,16 +101,16 @@ static QState Ship_Active(Ship * const me, QEvt const * const e){
             ioctl(fd, EVIOCGKEY(sizeof(key_b)), key_b);
             close(fd);
             if(test_bit(KEY_W, key_b)){
-                me->y-=2;
+                me->y-=Y_STEP_UPDATE;
             }
             if(test_bit(KEY_A, key_b)){
-                me->x-=2;
+                me->x-=X_STEP_UPDATE;
             }
             if(test_bit(KEY_S, key_b)){
-                me->y+=2;
+                me->y+=Y_STEP_UPDATE;
             }
             if(test_bit(KEY_D, key_b)){
-                me->x+=2;
+                me->x+=X_STEP_UPDATE;
             }
 
 
