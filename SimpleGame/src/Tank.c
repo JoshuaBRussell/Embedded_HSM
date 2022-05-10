@@ -60,8 +60,8 @@ static QState Tank_initial(Tank * const me, void const * const par){
 
     OLED_setup();
 
-    me->x = 0;
-    me->y = 0;
+    me->x = 52;
+    me->y = 50;
 
     return Q_TRAN(&Tank_Active);
 }
@@ -82,15 +82,15 @@ static QState Tank_Active(Tank * const me, QEvt const * const e){
             
             //Detect Key Press
             BSP_update_KB_state();
-            if(BSP_isUpKey_Pressed()){
-                me->y-=Y_STEP_UPDATE;
-            }
+            // if(BSP_isUpKey_Pressed()){
+            //     me->y-=Y_STEP_UPDATE;
+            // }
             if(BSP_isLeftKey_Pressed()){
                 me->x-=X_STEP_UPDATE;
             }
-            if(BSP_isDwnKey_Pressed()){
-                me->y+=Y_STEP_UPDATE;
-            }
+            // if(BSP_isDwnKey_Pressed()){
+            //     me->y+=Y_STEP_UPDATE;
+            // }
             if(BSP_isRightKey_Pressed()){
                 me->x+=X_STEP_UPDATE;
             }
