@@ -71,7 +71,7 @@ endif
 
 # C source files...
 C_SRCS := \
-	Ship.c \
+	Tank.c \
 	OLED.c \
 	mess_transf.c \
 	BSP.c \
