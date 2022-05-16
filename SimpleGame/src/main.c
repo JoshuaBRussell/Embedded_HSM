@@ -38,7 +38,7 @@ void QF_onClockTick(void) {
 int main(){
 
     //Statically allocate event queue
-    static QEvt const *blinky_queue[10];
+    static QEvt const *Tank_Evt_queue[10];
     static QEvt const *World_Evt_queue[10];
 
     //Event Memory Pools
@@ -69,7 +69,7 @@ int main(){
     Tank_ctor();
     QACTIVE_START(AO_Tank,
                   1,
-                  blinky_queue, Q_DIM(blinky_queue),
+                  Tank_Evt_queue, Q_DIM(Tank_Evt_queue),
                   (void *)0, 0,
                   (QEvt *)0);
 
