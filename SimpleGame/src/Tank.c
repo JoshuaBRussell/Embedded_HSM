@@ -29,8 +29,6 @@ enum {BSP_TICKS_PER_SEC = 10};
 typedef struct{
     QActive super;
 
-    QTimeEvt timeEvt;
-
     int x;
     int y;
 } Tank;
@@ -50,13 +48,12 @@ static QState Tank_Active(Tank * const me, QEvt const * const e);
 void Tank_ctor(void){
     Tank *me = (Tank *)AO_Tank;
     QActive_ctor(&me->super, Q_STATE_CAST(&Tank_initial));
-    QTimeEvt_ctorX(&me->timeEvt, &me->super, TIME_SIG, 0u);
 }
 
 static QState Tank_initial(Tank * const me, void const * const par){
     (void)par;
 
-    QTimeEvt_armX(&me->timeEvt, BSP_TICKS_PER_SEC/2, BSP_TICKS_PER_SEC/2);
+    QActive_subscribe(&me->super, TIME_SIG);
 
     OLED_setup();
 
@@ -95,12 +92,11 @@ static QState Tank_Active(Tank * const me, QEvt const * const e){
                 me->x+=X_STEP_UPDATE;
             }
 
-
-
-            OLED_clear_frame_buffer();
-            OLED_set_bitmap(me->x, me->y, &Tank_img);
-
-            OLED_send_frame();
+            BmpImageEvt *ship_evt = Q_NEW(BmpImageEvt, SHIP_POS);
+            ship_evt->x = me->x;
+            ship_evt->y = me->y;
+            ship_evt->bmp_img = &Tank_img;
+            QF_PUBLISH((QEvt *)ship_evt, me);
 
             status = Q_HANDLED();
             break;

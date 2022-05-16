@@ -2,13 +2,7 @@
 #define _TANK_AO_
 
 #include "qpc.h"
-
-
-//Tank Event Identifiers
-enum TankSignals{
-    TIME_SIG = Q_USER_SIG,
-    MAX_SIG
-};
+#include "Game.h"
 
 //Tank Constructor
 void Tank_ctor(void);

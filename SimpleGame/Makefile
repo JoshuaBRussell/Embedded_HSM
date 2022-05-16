@@ -71,6 +71,7 @@ endif
 
 # C source files...
 C_SRCS := \
+	World.c \
 	Tank.c \
 	OLED.c \
 	mess_transf.c \
