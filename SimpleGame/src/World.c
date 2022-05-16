@@ -59,7 +59,7 @@ static QState World_Active(World * const me, QEvt const * const e){
         case SHIP_POS: {
 
             printf("Got Ship Position.\n");
-            status = Q_SUPER(&QHsm_top);
+            status = Q_HANDLED();
             break;
         }
 
