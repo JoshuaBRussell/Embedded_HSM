@@ -3,6 +3,7 @@
 
 
 #include "qpc.h"
+#include "World.h"
 #include "Tank.h"
 #include "Game.h"
 #include <stdlib.h> //For exit()
@@ -38,6 +39,7 @@ int main(){
 
     //Statically allocate event queue
     static QEvt const *blinky_queue[10];
+    static QEvt const *World_Evt_queue[10];
 
     //Static storage for list of subscribers
     static QSubscrList subscr_storage[10];
@@ -49,7 +51,13 @@ int main(){
     //Initialize QF Publish-Subscribe faculties
     QF_psInit(subscr_storage, Q_DIM(subscr_storage));
 
-    //Call AO Constructor
+    //Call AO Constructors
+    World_ctor();
+    QACTIVE_START(AO_World,
+                  2,
+                  World_Evt_queue, Q_DIM(World_Evt_queue),
+                  (void *)0, 0,
+                  (QEvt *)0);
     Tank_ctor();
     QACTIVE_START(AO_Tank,
                   1,
