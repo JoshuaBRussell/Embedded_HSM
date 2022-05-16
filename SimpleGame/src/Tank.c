@@ -29,8 +29,6 @@ enum {BSP_TICKS_PER_SEC = 10};
 typedef struct{
     QActive super;
 
-    QTimeEvt timeEvt;
-
     int x;
     int y;
 } Tank;
@@ -50,13 +48,12 @@ static QState Tank_Active(Tank * const me, QEvt const * const e);
 void Tank_ctor(void){
     Tank *me = (Tank *)AO_Tank;
     QActive_ctor(&me->super, Q_STATE_CAST(&Tank_initial));
-    QTimeEvt_ctorX(&me->timeEvt, &me->super, TIME_SIG, 0u);
 }
 
 static QState Tank_initial(Tank * const me, void const * const par){
     (void)par;
 
-    QTimeEvt_armX(&me->timeEvt, BSP_TICKS_PER_SEC/2, BSP_TICKS_PER_SEC/2);
+    QActive_subscribe(&me->super, TIME_SIG);
 
     OLED_setup();
 
