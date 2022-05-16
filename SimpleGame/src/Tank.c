@@ -98,13 +98,6 @@ static QState Tank_Active(Tank * const me, QEvt const * const e){
             ship_evt->bmp_img = &Tank_img;
             QF_PUBLISH((QEvt *)ship_evt, me);
 
-
-
-            OLED_clear_frame_buffer();
-            OLED_set_bitmap(me->x, me->y, &Tank_img);
-
-            OLED_send_frame();
-
             status = Q_HANDLED();
             break;
         }

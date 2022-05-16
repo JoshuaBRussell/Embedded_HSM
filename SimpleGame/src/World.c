@@ -52,13 +52,17 @@ static QState World_Active(World * const me, QEvt const * const e){
 
         case TIME_SIG: {
             printf("World-TIME_SIG.\n");
+            OLED_send_frame();
+            OLED_clear_frame_buffer();
             status = Q_HANDLED();
             break;
         }
 
         case SHIP_POS: {
-
-            printf("Got Ship Position.\n");
+            //Update OLED Frame Buffer with the ship's current location
+            OLED_set_bitmap(Q_EVT_CAST(BmpImageEvt)->x, 
+                            Q_EVT_CAST(BmpImageEvt)->y, 
+                            Q_EVT_CAST(BmpImageEvt)->bmp_img);
             status = Q_HANDLED();
             break;
         }
