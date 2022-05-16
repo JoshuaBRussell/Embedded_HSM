@@ -41,6 +41,10 @@ int main(){
     static QEvt const *blinky_queue[10];
     static QEvt const *World_Evt_queue[10];
 
+    //Event Memory Pools
+    static QF_MPOOL_EL(QEvt)  smallPoolStorage[10];
+    static QF_MPOOL_EL(BmpImageEvt)  medPoolStorage[15];
+
     //Static storage for list of subscribers
     static QSubscrList subscr_storage[10];
     
@@ -50,6 +54,10 @@ int main(){
     
     //Initialize QF Publish-Subscribe faculties
     QF_psInit(subscr_storage, Q_DIM(subscr_storage));
+
+    //Initialize the event pools
+    QF_poolInit(smallPoolStorage, sizeof(smallPoolStorage), sizeof(smallPoolStorage[0]));
+    QF_poolInit(medPoolStorage, sizeof(medPoolStorage), sizeof(medPoolStorage[0]));
 
     //Call AO Constructors
     World_ctor();
