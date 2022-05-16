@@ -92,6 +92,12 @@ static QState Tank_Active(Tank * const me, QEvt const * const e){
                 me->x+=X_STEP_UPDATE;
             }
 
+            BmpImageEvt *ship_evt = Q_NEW(BmpImageEvt, SHIP_POS);
+            ship_evt->x = me->x;
+            ship_evt->y = me->y;
+            ship_evt->bmp_img = &Tank_img;
+            QF_PUBLISH((QEvt *)ship_evt, me);
+
 
 
             OLED_clear_frame_buffer();

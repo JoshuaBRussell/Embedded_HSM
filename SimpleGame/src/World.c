@@ -35,6 +35,7 @@ static QState World_initial(World * const me, void const * const par){
     (void)par;
 
     QActive_subscribe(&me->super, TIME_SIG);
+    QActive_subscribe(&me->super, SHIP_POS);
 
     return Q_TRAN(&World_Active);
 }
@@ -51,6 +52,13 @@ static QState World_Active(World * const me, QEvt const * const e){
 
         case TIME_SIG: {
             printf("World-TIME_SIG.\n");
+            status = Q_HANDLED();
+            break;
+        }
+
+        case SHIP_POS: {
+
+            printf("Got Ship Position.\n");
             status = Q_SUPER(&QHsm_top);
             break;
         }
