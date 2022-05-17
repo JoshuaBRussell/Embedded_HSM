@@ -13,6 +13,8 @@ bool BSP_isRightKey_Pressed();
 
 bool BSP_isLeftKey_Pressed();
 
+bool BSP_isActionButtonPressed();
+
 
 
 
