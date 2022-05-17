@@ -99,8 +99,13 @@ static QState Missile_Active(Missile * const me, QEvt const * const e){
             miss_evt->bmp_img = &Miss_img;
             QF_PUBLISH((QEvt *)miss_evt, me);
 
-
-            status = Q_HANDLED();
+            if(me->y <= -Miss_img.bitmap_height){
+                status = Q_TRAN(&Missile_Inactive);
+            } else
+            {
+                status = Q_HANDLED();    
+            }
+            
             break;
         }
 
