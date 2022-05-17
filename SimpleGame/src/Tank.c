@@ -98,6 +98,14 @@ static QState Tank_Active(Tank * const me, QEvt const * const e){
             ship_evt->bmp_img = &Tank_img;
             QF_PUBLISH((QEvt *)ship_evt, me);
 
+            if(BSP_isActionButtonPressed()){
+                BmpImageEvt *miss_fire_evt = Q_NEW(BmpImageEvt, MISS_FIRE);
+                miss_fire_evt->x = me->x;
+                miss_fire_evt->y = me->y;
+                miss_fire_evt->bmp_img = &Tank_img;
+                QF_PUBLISH((QEvt *)miss_fire_evt, me);
+            }
+
             status = Q_HANDLED();
             break;
         }
