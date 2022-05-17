@@ -36,6 +36,7 @@ static QState World_initial(World * const me, void const * const par){
 
     QActive_subscribe(&me->super, TIME_SIG);
     QActive_subscribe(&me->super, SHIP_POS);
+    QActive_subscribe(&me->super, MISS_POS);
 
     return Q_TRAN(&World_Active);
 }
@@ -62,6 +63,15 @@ static QState World_Active(World * const me, QEvt const * const e){
             //Update OLED Frame Buffer with the ship's current location
             OLED_set_bitmap(Q_EVT_CAST(BmpImageEvt)->x, 
                             Q_EVT_CAST(BmpImageEvt)->y, 
+                            Q_EVT_CAST(BmpImageEvt)->bmp_img);
+            status = Q_HANDLED();
+            break;
+        }
+
+        case MISS_POS: {
+            //Update OLED Frame Buffer with the missile's current location
+            OLED_set_bitmap(Q_EVT_CAST(BmpImageEvt)->x,
+                            Q_EVT_CAST(BmpImageEvt)->y,
                             Q_EVT_CAST(BmpImageEvt)->bmp_img);
             status = Q_HANDLED();
             break;
