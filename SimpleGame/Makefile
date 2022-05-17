@@ -73,6 +73,7 @@ endif
 C_SRCS := \
 	World.c \
 	Tank.c \
+	Missile.c \
 	OLED.c \
 	mess_transf.c \
 	BSP.c \

@@ -44,3 +44,7 @@ bool BSP_isLeftKey_Pressed(){
 
     return test_bit(KEY_A, key_b);
 }
+
+bool BSP_isActionButtonPressed(){
+    return test_bit(KEY_SPACE, key_b);
+}

@@ -5,6 +5,7 @@
 #include "qpc.h"
 #include "World.h"
 #include "Tank.h"
+#include "Missile.h"
 #include "Game.h"
 #include <stdlib.h> //For exit()
 #include <stdio.h>
@@ -40,6 +41,7 @@ int main(){
     //Statically allocate event queue
     static QEvt const *Tank_Evt_queue[10];
     static QEvt const *World_Evt_queue[10];
+    static QEvt const *Misssile_Evt_queue[10];
 
     //Event Memory Pools
     static QF_MPOOL_EL(QEvt)  smallPoolStorage[10];
@@ -62,14 +64,21 @@ int main(){
     //Call AO Constructors
     World_ctor();
     QACTIVE_START(AO_World,
-                  2,
+                  3,
                   World_Evt_queue, Q_DIM(World_Evt_queue),
                   (void *)0, 0,
                   (QEvt *)0);
     Tank_ctor();
     QACTIVE_START(AO_Tank,
-                  1,
+                  2,
                   Tank_Evt_queue, Q_DIM(Tank_Evt_queue),
+                  (void *)0, 0,
+                  (QEvt *)0);
+
+    Missile_ctor();
+    QACTIVE_START(AO_Missile,
+                  1,
+                  Misssile_Evt_queue, Q_DIM(Misssile_Evt_queue),
                   (void *)0, 0,
                   (QEvt *)0);
 
