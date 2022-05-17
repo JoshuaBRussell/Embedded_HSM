@@ -206,8 +206,10 @@ void OLED_set_bitmap(const int x, const int y, const Bitmap * const bitmap_image
             
             for (uint8_t bit_index = 0; bit_index < 8; bit_index++){
                 pixel_value = (row_byte >> MSb_bit_shift[bit_index]) & 0x01;
-                    
-                OLED_set_pixel(x + byte_index*8+bit_index, y+row_index, pixel_value);
+
+                if(pixel_value){
+                    OLED_set_pixel(x + byte_index*8+bit_index, y+row_index, pixel_value);
+                } 
             }
         }
     }
