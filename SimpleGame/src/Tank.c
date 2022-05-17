@@ -15,6 +15,8 @@
 #define X_STEP_UPDATE 3
 #define Y_STEP_UPDATE 3
 
+#define MISS_CUSTOM_OFFSET_X 9
+
 static const uint8_t Tank_arr[] = {
 	0x00, 0x3c, 0x00, 0x01, 0xff, 0x80, 0x06, 0x66, 0x60, 0x06, 0x66, 0x60, 0x1e, 0x66, 0x78, 0xfe, 
     0x66, 0x7f, 0xfe, 0x66, 0x7f, 0xfe, 0x66, 0x7f, 0xfe, 0x66, 0x7f, 0x00, 0x00, 0x00
@@ -100,7 +102,7 @@ static QState Tank_Active(Tank * const me, QEvt const * const e){
 
             if(BSP_isActionButtonPressed()){
                 BmpImageEvt *miss_fire_evt = Q_NEW(BmpImageEvt, MISS_FIRE);
-                miss_fire_evt->x = me->x;
+                miss_fire_evt->x = me->x+MISS_CUSTOM_OFFSET_X;
                 miss_fire_evt->y = me->y;
                 miss_fire_evt->bmp_img = &Tank_img;
                 QF_PUBLISH((QEvt *)miss_fire_evt, me);
