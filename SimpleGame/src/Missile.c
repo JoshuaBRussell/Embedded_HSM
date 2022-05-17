@@ -6,6 +6,8 @@
 
 #include "OLED.h"
 
+#define MISS_PIXEL_PER_TICK 3
+
 static const uint8_t Miss_arr[] = {
 	0x00, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x78, 0x00, 0x00, 0x00
 };
@@ -89,7 +91,7 @@ static QState Missile_Active(Missile * const me, QEvt const * const e){
         case TIME_SIG: {
             
             //Update missile position
-            me->y -= 1;
+            me->y -= MISS_PIXEL_PER_TICK;
 
             //Send updated position to World AO to be drawn
             BmpImageEvt *miss_evt = Q_NEW(BmpImageEvt, MISS_POS);
