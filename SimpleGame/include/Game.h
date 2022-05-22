@@ -8,6 +8,7 @@ enum GAME_Signals{
     TIME_SIG = Q_USER_SIG,
     SHIP_POS,
     MISS_POS,
+    ENEMY_POS,
     MISS_FIRE,
     MAX_SIG
 };
