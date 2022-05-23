@@ -71,13 +71,11 @@ static QState Tank_Active(Tank * const me, QEvt const * const e){
 
     switch(e->sig){
         case Q_ENTRY_SIG: {
-            printf("Enter Active.\n");
             status = Q_HANDLED();
             break;
         }
 
         case TIME_SIG: {
-            printf("Tank-Time_Sig\n");
             
             //Detect Key Press
             BSP_update_KB_state();
