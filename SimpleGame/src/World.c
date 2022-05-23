@@ -47,13 +47,11 @@ static QState World_Active(World * const me, QEvt const * const e){
 
     switch(e->sig){
         case Q_ENTRY_SIG: {
-            //printf("Enter World-Active.\n");
             status = Q_HANDLED();
             break;
         }
 
         case TIME_SIG: {
-            //printf("World-TIME_SIG.\n");
             OLED_send_frame();
             OLED_clear_frame_buffer();
             status = Q_HANDLED();
