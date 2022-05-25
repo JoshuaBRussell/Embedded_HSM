@@ -49,6 +49,7 @@ static bool doBmpImagesOverlap(int Ax1, int Ay1, int Ax2, int Ay2,
 static QState Enemy_initial(Enemy * const me, void const * const par);
 static QState Enemy_Inactive(Enemy * const me, QEvt const * const e);
 static QState Enemy_Active(Enemy * const me, QEvt const * const e);
+static QState Enemy_Dead(Enemy * const me, QEvt const * const e);
 
 
 void Enemy_ctor(void){
@@ -114,12 +115,14 @@ static QState Enemy_Active(Enemy * const me, QEvt const * const e){
         }
 
         case MISS_POS: {
-
+            
             int miss_x_pos = Q_EVT_CAST(BmpImageEvt)->x;
             int miss_y_pos = Q_EVT_CAST(BmpImageEvt)->y;
             int miss_bmp_width = (Q_EVT_CAST(BmpImageEvt)->bmp_img)->bitmap_width;
             int miss_bmp_height = (Q_EVT_CAST(BmpImageEvt)->bmp_img)->bitmap_height;
+
             //Check for overlap between the missile and enemy BMP images.
+            bool is_hit = false;
             if (doBmpImagesOverlap(me->x, me->y, me->x + Enemy_img.bitmap_width*8, me->y + Enemy_img.bitmap_height, 
                                    miss_x_pos, miss_y_pos, miss_x_pos + miss_bmp_width*8, miss_y_pos + miss_bmp_height)){
                 
@@ -148,6 +151,7 @@ static QState Enemy_Active(Enemy * const me, QEvt const * const e){
                 //Then the pixel value at the BMP images relative location is found (for both BMP images)
                 //Finally, the two are compared to determine if there is an overlap. 
 
+                
                 for(int y_index = overlap_y1; y_index <= overlap_y2; y_index++){
                     for(int x_index = overlap_x1; x_index <= overlap_x2; x_index++){
 
@@ -172,18 +176,22 @@ static QState Enemy_Active(Enemy * const me, QEvt const * const e){
                         row_byte = *((Q_EVT_CAST(BmpImageEvt)->bmp_img)->byte_array+ miss_byte_index);
                         bool miss_bit = (row_byte >> miss_bit_index) & 0x01;
                         
+                        
                         if(miss_bit && enemy_bit){
-                            printf("HIT!!!\n");
-                        }
+                            is_hit = true;
+                        } 
 
                     }
                 }
 
-
             }
 
+            if(is_hit){
+                    status = Q_TRAN(&Enemy_Dead);
+            } else {
+                    status = Q_HANDLED();
+            }
 
-            status = Q_HANDLED();
             break;
         }
 
@@ -191,6 +199,33 @@ static QState Enemy_Active(Enemy * const me, QEvt const * const e){
             status = Q_SUPER(&QHsm_top);
         }
     }
+
+    return status;
+}
+
+
+static QState Enemy_Dead(Enemy * const me, QEvt const * const e){
+    QState status;
+
+    switch (e->sig){
+        case Q_ENTRY_SIG: {
+            // printf("Dead Entry-Seq.\n");
+            status = Q_HANDLED();
+            break;
+        }
+
+        case TIME_SIG: {
+            status = Q_HANDLED();
+            break;
+        }
+    
+        default: {
+
+            status = Q_SUPER(&QHsm_top);
+            break;
+        }
+    }
+
 
     return status;
 }
