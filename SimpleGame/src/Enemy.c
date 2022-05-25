@@ -129,17 +129,56 @@ static QState Enemy_Active(Enemy * const me, QEvt const * const e){
                 int overlap_y1 = max(me->y, miss_y_pos);
 
                 //Highest - Lower Coord
-                int overlap_y2 = min(me->y+Enemy_img.bitmap_height, miss_y_pos+miss_bmp_height);
+                int overlap_y2 = min(me->y+Enemy_img.bitmap_height - 1, miss_y_pos+miss_bmp_height - 1);
 
                 //Right Most - Left Coord
                 int overlap_x1 = max(me->x, miss_x_pos);
 
                 //Left Most - Right Coord
-                int overlap_x2 = min(me->x + Enemy_img.bitmap_width*8, miss_x_pos + miss_bmp_width*8);
+                int overlap_x2 = min(me->x + Enemy_img.bitmap_width*8 - 1, miss_x_pos + miss_bmp_width*8 - 1);
 
 
                 printf("[1](%d,%d)\n",overlap_x1, overlap_y1);
                 printf("[2](%d,%d)\n",overlap_x2, overlap_y2);
+
+                int const MSb_bit_shift[] = {7, 6, 5, 4, 3, 2, 1, 0};
+
+                //The overall method is to look at each absolute pixel value location in the overlap window.
+                //The absolute pixel value is converted to a relative pixel value in the respective BMP image.
+                //Then the pixel value at the BMP images relative location is found (for both BMP images)
+                //Finally, the two are compared to determine if there is an overlap. 
+
+                for(int y_index = overlap_y1; y_index <= overlap_y2; y_index++){
+                    for(int x_index = overlap_x1; x_index <= overlap_x2; x_index++){
+
+                        //Get Enemy Pixel Value
+                        int enemy_rel_x_coord = (x_index - me->x);
+                        int enemy_rel_y_coord = (y_index - me->y);
+
+                        int enemy_byte_index = (enemy_rel_y_coord * Enemy_img.bitmap_width) + enemy_rel_x_coord/8;
+                        int enemy_bit_index = MSb_bit_shift[enemy_rel_x_coord%8]; 
+
+                        uint8_t row_byte = Enemy_arr[enemy_byte_index];
+                        bool enemy_bit = (row_byte >> enemy_bit_index) & 0x01;
+
+                        
+                        //Get Missile Pixel Value
+                        int miss_rel_x_coord = (x_index - me->x);
+                        int miss_rel_y_coord = (y_index - me->y);
+
+                        int miss_byte_index = (miss_rel_y_coord * (Q_EVT_CAST(BmpImageEvt)->bmp_img)->bitmap_width) + miss_rel_x_coord/8;
+                        int miss_bit_index = MSb_bit_shift[miss_rel_x_coord%8]; 
+
+                        row_byte = *((Q_EVT_CAST(BmpImageEvt)->bmp_img)->byte_array+ miss_byte_index);
+                        bool miss_bit = (row_byte >> miss_bit_index) & 0x01;
+                        
+                        if(miss_bit && enemy_bit){
+                            printf("HIT!!!\n");
+                        }
+
+                    }
+                }
+
 
             }
 
