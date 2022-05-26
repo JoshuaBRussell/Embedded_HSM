@@ -77,7 +77,6 @@ static QState Enemy_Inactive(Enemy * const me, QEvt const * const e);
 static QState Enemy_Active(Enemy * const me, QEvt const * const e);
 static QState Enemy_Dying1(Enemy * const me, QEvt const * const e);
 static QState Enemy_Dying2(Enemy * const me, QEvt const * const e);
-static QState Enemy_Dead(Enemy * const me, QEvt const * const e);
 
 
 void Enemy_ctor(void){
