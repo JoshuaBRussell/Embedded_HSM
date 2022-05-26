@@ -94,12 +94,19 @@ static QState Enemy_Inactive(Enemy * const me, QEvt const * const e){
     switch(e->sig){
         case Q_ENTRY_SIG: {
             printf("Entry Seq.\n");
+            me->dying_counter = 90; //Use the dying counter to delay the (re)spawn of the enemy.
             status = Q_HANDLED();
             break;
         }
 
         case TIME_SIG: {
-            status = Q_TRAN(&Enemy_Active);
+            me->dying_counter--;
+            if(me->dying_counter == 0){
+                status = Q_TRAN(&Enemy_Active);
+            } else {
+                status = Q_HANDLED();
+            }
+            
             break;
         }
 
@@ -284,31 +291,11 @@ static QState Enemy_Dying2(Enemy * const me, QEvt const * const e){
             QF_PUBLISH((QEvt *)enemy_evt, me);
 
             if(me->dying_counter == 0){
-                status = Q_TRAN(&Enemy_Dead);
+                status = Q_TRAN(&Enemy_Inactive);
             } else {
                 status = Q_HANDLED();
             }
 
-            break;
-        }
-    
-        default: {
-            status = Q_SUPER(&QHsm_top);
-            break;
-        }
-    }
-
-
-    return status;
-}
-
-static QState Enemy_Dead(Enemy * const me, QEvt const * const e){
-    QState status;
-
-    switch (e->sig){
-        case Q_ENTRY_SIG: {
-            printf("Enemy Dead\n");
-            status = Q_HANDLED();
             break;
         }
     
