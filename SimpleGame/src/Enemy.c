@@ -7,6 +7,15 @@
 
 #define DYING_TIMER_COUNT 10
 
+static int const x_enemy_pos[] = {0, 1, 2, 5, 8, 13, 18, 24, 31, 38, 46, 54, 62, 70, 78, 
+                                  86, 94, 101, 107, 113, 118, 122, 125, 127, 128, 128, 127, 
+                                  125, 122, 118, 113, 107, 101, 94, 86, 78, 70, 62, 54, 46, 
+                                  38, 31, 24, 18, 13, 8, 5, 2, 1, 0};
+static int const y_enemy_pos[] = {14, 11, 8, 5, 3, 2, 1, 2, 3, 5, 7, 10, 13, 17, 20, 23, 
+                                  25, 26, 27, 27, 26, 24, 22, 19, 16, 13, 10, 7, 4, 2, 1, 
+                                  1, 2, 4, 6, 9, 12, 15, 18, 21, 24, 26, 27, 27, 27, 25, 23, 
+                                  20, 17, 14};
+
 
 static const uint8_t Enemy_arr[] = {
 	0x00, 0x3c, 0x00, 0x01, 0xff, 0x80, 0x06, 0x66, 0x60, 0x06, 0x66, 0x60, 0x1e, 0x66, 0x78, 0xfe, 
@@ -35,6 +44,7 @@ typedef struct{
     int y;
 
     uint8_t dying_counter;
+    uint8_t timing_counter;
 } Enemy;
 
 
@@ -124,11 +134,17 @@ static QState Enemy_Active(Enemy * const me, QEvt const * const e){
     switch(e->sig){
         case Q_ENTRY_SIG: {
             printf("Entry Seq.\n");
+            me->timing_counter = 0;
             status = Q_HANDLED();
             break;
         }
 
         case TIME_SIG: {
+
+            me->x = x_enemy_pos[me->timing_counter%50];
+            me->y = y_enemy_pos[me->timing_counter%50];
+            me->timing_counter++;
+
             BmpImageEvt *enemy_evt = Q_NEW(BmpImageEvt, ENEMY_POS);
             enemy_evt->x = me->x;
             enemy_evt->y = me->y;
