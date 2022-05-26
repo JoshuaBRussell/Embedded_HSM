@@ -5,12 +5,26 @@
 #include "stdio.h"
 #include "stdbool.h"
 
+#define DYING_TIMER_COUNT 10
+
 
 static const uint8_t Enemy_arr[] = {
 	0x00, 0x3c, 0x00, 0x01, 0xff, 0x80, 0x06, 0x66, 0x60, 0x06, 0x66, 0x60, 0x1e, 0x66, 0x78, 0xfe, 
     0x66, 0x7f, 0xfe, 0x66, 0x7f, 0xfe, 0x66, 0x7f, 0xfe, 0x66, 0x7f, 0x00, 0x00, 0x00
 };
 static Bitmap Enemy_img = {Enemy_arr, 3, 10};
+
+static const uint8_t Enemy_Dying1_arr[] = {
+	0x00, 0x3c, 0x00, 0x01, 0x00, 0x80, 0x06, 0x66, 0x40, 0x06, 0x66, 0x60, 0x0e, 0x66, 0x70, 0x7e, 
+    0x66, 0x77, 0x6e, 0x66, 0x7f, 0xfe, 0x66, 0x77, 0xae, 0x66, 0x7a, 0x00, 0x00, 0x00
+};
+static Bitmap Enemy_Dying1_img = {Enemy_Dying1_arr, 3, 10};
+
+static const uint8_t Enemy_Dying2_arr[] = {
+	0x00, 0x38, 0x00, 0x01, 0x00, 0x80, 0x06, 0x66, 0x40, 0x06, 0x66, 0x60, 0x0e, 0x66, 0x70, 0x7e, 
+    0x66, 0x77, 0x6e, 0x66, 0x74, 0xfe, 0x66, 0x75, 0xae, 0x66, 0x5a, 0x00, 0x00, 0x00
+};
+static Bitmap Enemy_Dying2_img = {Enemy_Dying2_arr, 3, 10};
 
 
 //Declare Enemy Active Object
@@ -19,6 +33,8 @@ typedef struct{
 
     int x;
     int y;
+
+    uint8_t dying_counter;
 } Enemy;
 
 
@@ -49,6 +65,8 @@ static bool doBmpImagesOverlap(int Ax1, int Ay1, int Ax2, int Ay2,
 static QState Enemy_initial(Enemy * const me, void const * const par);
 static QState Enemy_Inactive(Enemy * const me, QEvt const * const e);
 static QState Enemy_Active(Enemy * const me, QEvt const * const e);
+static QState Enemy_Dying1(Enemy * const me, QEvt const * const e);
+static QState Enemy_Dying2(Enemy * const me, QEvt const * const e);
 static QState Enemy_Dead(Enemy * const me, QEvt const * const e);
 
 
@@ -187,7 +205,7 @@ static QState Enemy_Active(Enemy * const me, QEvt const * const e){
             }
 
             if(is_hit){
-                    status = Q_TRAN(&Enemy_Dead);
+                    status = Q_TRAN(&Enemy_Dying1);
             } else {
                     status = Q_HANDLED();
             }
@@ -204,23 +222,97 @@ static QState Enemy_Active(Enemy * const me, QEvt const * const e){
 }
 
 
-static QState Enemy_Dead(Enemy * const me, QEvt const * const e){
+static QState Enemy_Dying1(Enemy * const me, QEvt const * const e){
     QState status;
 
     switch (e->sig){
         case Q_ENTRY_SIG: {
-            // printf("Dead Entry-Seq.\n");
+            printf("Enter Dying 1\n");
+            me->dying_counter = DYING_TIMER_COUNT;
             status = Q_HANDLED();
             break;
         }
 
         case TIME_SIG: {
+
+            me->dying_counter--;
+
+            BmpImageEvt *enemy_evt = Q_NEW(BmpImageEvt, ENEMY_POS);
+            enemy_evt->x = me->x;
+            enemy_evt->y = me->y;
+            enemy_evt->bmp_img = &Enemy_Dying1_img;
+            QF_PUBLISH((QEvt *)enemy_evt, me);
+
+            if(me->dying_counter == 0){
+                printf("Done Dying\n");
+                status = Q_TRAN(&Enemy_Dying2);
+            } else {
+                status = Q_HANDLED();
+            }
+
+            break;
+        }
+    
+        default: {
+            status = Q_SUPER(&QHsm_top);
+            break;
+        }
+    }
+
+
+    return status;
+}
+
+static QState Enemy_Dying2(Enemy * const me, QEvt const * const e){
+    QState status;
+
+    switch (e->sig){
+        case Q_ENTRY_SIG: {
+            me->dying_counter = DYING_TIMER_COUNT;
+            status = Q_HANDLED();
+            break;
+        }
+
+        case TIME_SIG: {
+            
+            me->dying_counter--;
+
+            BmpImageEvt *enemy_evt = Q_NEW(BmpImageEvt, ENEMY_POS);
+            enemy_evt->x = me->x;
+            enemy_evt->y = me->y;
+            enemy_evt->bmp_img = &Enemy_Dying2_img;
+            QF_PUBLISH((QEvt *)enemy_evt, me);
+
+            if(me->dying_counter == 0){
+                status = Q_TRAN(&Enemy_Dead);
+            } else {
+                status = Q_HANDLED();
+            }
+
+            break;
+        }
+    
+        default: {
+            status = Q_SUPER(&QHsm_top);
+            break;
+        }
+    }
+
+
+    return status;
+}
+
+static QState Enemy_Dead(Enemy * const me, QEvt const * const e){
+    QState status;
+
+    switch (e->sig){
+        case Q_ENTRY_SIG: {
+            printf("Enemy Dead\n");
             status = Q_HANDLED();
             break;
         }
     
         default: {
-
             status = Q_SUPER(&QHsm_top);
             break;
         }
