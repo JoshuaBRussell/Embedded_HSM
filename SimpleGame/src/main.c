@@ -11,7 +11,7 @@
 #include <stdlib.h> //For exit()
 #include <stdio.h>
 
-#define FRAMES_PER_SEC 30
+#define FRAMES_PER_SEC 25
 
 
 Q_DEFINE_THIS_FILE
