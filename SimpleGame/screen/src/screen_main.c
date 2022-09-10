@@ -115,7 +115,7 @@ int main(){
     while(!WindowShouldClose()){
         
         payload_size = receive_rx(frame_buffer1);
-        printf("Payload Size: %i\n ", payload_size);
+        //printf("Payload Size: %i\n ", payload_size);
 
         //Check to see if a full frame's worth of data was sent
         update_screen = (payload_size == SCREENWIDTH_IN_BYTES*PIXEL_HEIGHT);

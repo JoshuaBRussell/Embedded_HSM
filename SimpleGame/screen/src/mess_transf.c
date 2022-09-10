@@ -118,8 +118,8 @@ ssize_t receive_rx(void * payload_buff){
     
     //if message format is correct, then copy the data to a 'frame buffer'
     if(check_if_mess_form_is_correct(rx_buffer, MESS_BUFFER_SIZE)){
-        printf("Message Format is Correct.\n");
-        printf("Copying over contents...\n");
+        // printf("Message Format is Correct.\n");
+        // printf("Copying over contents...\n");
         memcpy((uint8_t*)payload_buff, (rx_buffer+MESS_HEADER_LEN), MESS_BUFFER_SIZE - MESS_HEADER_LEN - MESS_TAIL_LEN);
 
         return_status = MESS_BUFFER_SIZE - MESS_HEADER_LEN - MESS_TAIL_LEN;
@@ -163,7 +163,7 @@ bool check_if_mess_form_is_correct(const void * const buffer_start, size_t buffe
             //the message start is assumed to be found
             if (start_seq_index == (MESS_HEADER_LEN - 1)){
                 message_start_found = true;
-                printf("Message Start Found Successfuly\n");
+                // printf("Message Start Found Successfuly\n");
             }
         }
         
@@ -182,7 +182,7 @@ bool check_if_mess_form_is_correct(const void * const buffer_start, size_t buffe
                 //the message start is assumed to be found
                 if (end_seq_index == (MESS_TAIL_LEN - 1)){
                     is_end_seq_correct = true;
-                    printf("End Seq\n");
+                    //printf("End Seq\n");
                 }
             }
 
