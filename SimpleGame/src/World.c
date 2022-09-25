@@ -39,6 +39,8 @@ static QState World_initial(World * const me, void const * const par){
     QActive_subscribe(&me->super, MISS_POS);
     QActive_subscribe(&me->super, ENEMY_POS);
 
+    OLED_setup();
+
     return Q_TRAN(&World_Active);
 }
 
