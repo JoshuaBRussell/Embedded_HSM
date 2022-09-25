@@ -3,6 +3,8 @@
 
 #include <stdbool.h>
 
+void BSP_setup();
+
 void BSP_update_KB_state();
 
 bool BSP_isUpKey_Pressed();

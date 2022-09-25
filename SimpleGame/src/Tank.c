@@ -58,6 +58,7 @@ static QState Tank_initial(Tank * const me, void const * const par){
     QActive_subscribe(&me->super, TIME_SIG);
 
     OLED_setup();
+    BSP_setup();
 
     me->x = 52;
     me->y = 50;
