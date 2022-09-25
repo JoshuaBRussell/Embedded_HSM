@@ -14,15 +14,17 @@
 
 
 static uint8_t key_b[KEY_MAX/8 + 1]; //Keyboard Status Memory
+static int keyboard_fd = -1;
+
+void BSP_setup(){
+    keyboard_fd = open("/dev/input/by-path/pci-0000:00:12.0-usb-0:1:1.0-event-kbd", O_RDONLY);
+}
 
 void BSP_update_KB_state(){
-    int fd;
-    fd = open("/dev/input/by-path/pci-0000:00:12.0-usb-0:1:1.0-event-kbd", O_RDONLY);
 
     memset(key_b, 0, sizeof(key_b));
-    ioctl(fd, EVIOCGKEY(sizeof(key_b)), key_b);
-    close(fd);
-
+    ioctl(keyboard_fd, EVIOCGKEY(sizeof(key_b)), key_b);
+    
 }
 
 bool BSP_isUpKey_Pressed(){
