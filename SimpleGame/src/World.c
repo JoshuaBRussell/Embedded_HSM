@@ -10,6 +10,8 @@
 #include "mess_transf.h"
 
 
+#define WINNING_SCORE 3
+
 //Declare World Active Object
 typedef struct{
     QActive super;
@@ -26,6 +28,7 @@ QActive * const AO_World = &local_world.super;
 
 static QState World_initial(World * const me, void const * const par);
 static QState World_Active(World * const me, QEvt const * const e);
+static QState World_Won(World * const me, QEvt const * const e);
 
 
 void World_ctor(void){
@@ -44,7 +47,7 @@ static QState World_initial(World * const me, void const * const par){
 
     OLED_setup();
 
-    me->score = 3;
+    me->score = 0;
 
     return Q_TRAN(&World_Active);
 }
@@ -91,6 +94,54 @@ static QState World_Active(World * const me, QEvt const * const e){
             OLED_set_bitmap(Q_EVT_CAST(BmpImageEvt)->x,
                             Q_EVT_CAST(BmpImageEvt)->y,
                             Q_EVT_CAST(BmpImageEvt)->bmp_img);
+            status = Q_HANDLED();
+            break;
+        }
+
+        case INC_SCORE: {
+            
+            me->score+=1;
+
+            if (me->score < WINNING_SCORE){
+                status = Q_HANDLED();
+            } else {
+                status = Q_TRAN(&World_Won);
+            }
+            
+            break;
+        }
+
+        default: {
+            status = Q_SUPER(&QHsm_top);
+            break;
+        }
+    }
+
+    return status;
+}
+
+static QState World_Won(World * const me, QEvt const * const e){
+    QState status;
+
+    switch(e->sig){
+        case Q_ENTRY_SIG: {
+            status = Q_HANDLED();
+            break;
+        }
+
+        case TIME_SIG: {
+            
+            OLED_set_char('Y', 12, 24);
+            OLED_set_char('o', 24, 24);
+            OLED_set_char('u', 36, 24);
+            OLED_set_char(' ', 48, 24);
+            OLED_set_char('W', 60, 24);
+            OLED_set_char('o', 72, 24);
+            OLED_set_char('n', 84, 24);
+            OLED_set_char('!', 96, 24);
+            
+            OLED_send_frame();
+            OLED_clear_frame_buffer();
             status = Q_HANDLED();
             break;
         }
