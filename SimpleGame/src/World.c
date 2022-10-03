@@ -13,6 +13,8 @@
 //Declare World Active Object
 typedef struct{
     QActive super;
+
+    int score;
 } World;
 
 
@@ -41,6 +43,8 @@ static QState World_initial(World * const me, void const * const par){
 
     OLED_setup();
 
+    me->score = 3;
+
     return Q_TRAN(&World_Active);
 }
 
@@ -54,6 +58,9 @@ static QState World_Active(World * const me, QEvt const * const e){
         }
 
         case TIME_SIG: {
+            OLED_set_char(' ', 0, 0);
+            OLED_set_char((char)(me->score+'0'), 0, 0);
+            
             OLED_send_frame();
             OLED_clear_frame_buffer();
             status = Q_HANDLED();
