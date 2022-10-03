@@ -40,6 +40,7 @@ static QState World_initial(World * const me, void const * const par){
     QActive_subscribe(&me->super, SHIP_POS);
     QActive_subscribe(&me->super, MISS_POS);
     QActive_subscribe(&me->super, ENEMY_POS);
+    QActive_subscribe(&me->super, INC_SCORE);
 
     OLED_setup();
 
