@@ -231,7 +231,11 @@ static QState Enemy_Active(Enemy * const me, QEvt const * const e){
             }
 
             if(is_hit){
-                    status = Q_TRAN(&Enemy_Dying1);
+                
+                QEvt *score_evt = Q_NEW(QEvt, INC_SCORE);
+                QF_PUBLISH(score_evt, me);
+
+                status = Q_TRAN(&Enemy_Dying1);
             } else {
                     status = Q_HANDLED();
             }
