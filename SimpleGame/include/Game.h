@@ -11,6 +11,7 @@ enum GAME_Signals{
     ENEMY_POS,
     MISS_FIRE,
     INC_SCORE,
+    FIRE_POS,
     MAX_SIG
 };
 

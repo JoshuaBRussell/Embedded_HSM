@@ -39,6 +39,13 @@ static const uint8_t Enemy_Dying2_arr[] = {
 };
 static Bitmap Enemy_Dying2_img = {Enemy_Dying2_arr, 2, 25};
 
+static const uint8_t Enemy_Fireball_arr[] = {
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x20, 0x00, 0xc0, 0x03, 0x80, 0x06, 0x00, 0x3c, 0x00, 0x38, 0x00, 
+	0x00, 0x00, 0x00, 0x00
+};
+
+static Bitmap Enemy_Fireball_img = {Enemy_Fireball_arr, 2, 10};
+
 
 //Declare Enemy Active Object
 typedef struct{
@@ -46,6 +53,9 @@ typedef struct{
 
     int x;
     int y;
+
+    int fireball_x;
+    int fireball_y;
 
     uint8_t dying_counter;
     uint8_t timing_counter;
@@ -96,6 +106,9 @@ static QState Enemy_initial(Enemy * const me, void const * const par){
     
     me->x = 0;
     me->y = 0;
+
+    me->fireball_x = 0;
+    me->fireball_y = 0;
 
     return Q_TRAN(&Enemy_Inactive);
 }
@@ -154,6 +167,19 @@ static QState Enemy_Active(Enemy * const me, QEvt const * const e){
             enemy_evt->bmp_img = &Enemy_img;
             QF_PUBLISH((QEvt *)enemy_evt, me);
 
+            if ((me->timing_counter%30 == 0) && (me->fireball_y > 64)){
+                me->fireball_x = me->x;
+                me->fireball_y = me->y;
+            }
+            me->fireball_y += 2;
+
+            BmpImageEvt *fireball_evt = Q_NEW(BmpImageEvt, FIRE_POS);
+            fireball_evt->x = me->fireball_x;
+            fireball_evt->y = me->fireball_y;
+            fireball_evt->bmp_img = &Enemy_Fireball_img;
+            QF_PUBLISH((QEvt *)fireball_evt, me);
+
+            
             status = Q_HANDLED();
             break;
         }

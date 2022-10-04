@@ -44,6 +44,7 @@ static QState World_initial(World * const me, void const * const par){
     QActive_subscribe(&me->super, MISS_POS);
     QActive_subscribe(&me->super, ENEMY_POS);
     QActive_subscribe(&me->super, INC_SCORE);
+    QActive_subscribe(&me->super, FIRE_POS);
 
     OLED_setup();
 
@@ -108,6 +109,15 @@ static QState World_Active(World * const me, QEvt const * const e){
                 status = Q_TRAN(&World_Won);
             }
             
+            break;
+        }
+
+        case FIRE_POS: {
+            //Update OLED Frame Buffer with the ship's current location
+            OLED_set_bitmap(Q_EVT_CAST(BmpImageEvt)->x, 
+                            Q_EVT_CAST(BmpImageEvt)->y, 
+                            Q_EVT_CAST(BmpImageEvt)->bmp_img);
+            status = Q_HANDLED();
             break;
         }
 

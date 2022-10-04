@@ -50,7 +50,7 @@ int main(){
     static QF_MPOOL_EL(BmpImageEvt)  medPoolStorage[15];
 
     //Static storage for list of subscribers
-    static QSubscrList subscr_storage[10];
+    static QSubscrList subscr_storage[20];
     
     
     QF_init();
