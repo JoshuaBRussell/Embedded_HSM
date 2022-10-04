@@ -11,6 +11,7 @@
 
 
 #define WINNING_SCORE 3
+#define LOSING_SCORE -3
 
 //Declare World Active Object
 typedef struct{
@@ -41,7 +42,7 @@ static void dispaly_score(int score){
 static QState World_initial(World * const me, void const * const par);
 static QState World_Active(World * const me, QEvt const * const e);
 static QState World_Won(World * const me, QEvt const * const e);
-
+static QState World_Lost(World * const me, QEvt const * const e);
 
 void World_ctor(void){
     World *me = (World *)AO_World;
@@ -56,7 +57,9 @@ static QState World_initial(World * const me, void const * const par){
     QActive_subscribe(&me->super, MISS_POS);
     QActive_subscribe(&me->super, ENEMY_POS);
     QActive_subscribe(&me->super, INC_SCORE);
+    QActive_subscribe(&me->super, DEC_SCORE);
     QActive_subscribe(&me->super, FIRE_POS);
+    
 
     OLED_setup();
 
@@ -75,7 +78,7 @@ static QState World_Active(World * const me, QEvt const * const e){
         }
 
         case TIME_SIG: {
-            dispaly_score(-2);
+            dispaly_score(me->score);
             
             OLED_send_frame();
             OLED_clear_frame_buffer();
@@ -123,6 +126,21 @@ static QState World_Active(World * const me, QEvt const * const e){
             break;
         }
 
+        case DEC_SCORE: {
+            
+            me->score-=1;
+            printf("Score DEC - %i", me->score);
+
+            if (me->score > LOSING_SCORE){
+                status = Q_HANDLED();
+            } else {
+                status = Q_TRAN(&World_Lost);
+            }
+            
+            break;
+        }
+
+
         case FIRE_POS: {
             //Update OLED Frame Buffer with the ship's current location
             OLED_set_bitmap(Q_EVT_CAST(BmpImageEvt)->x, 
@@ -160,6 +178,42 @@ static QState World_Won(World * const me, QEvt const * const e){
             OLED_set_char('o', 72, 24);
             OLED_set_char('n', 84, 24);
             OLED_set_char('!', 96, 24);
+            
+            OLED_send_frame();
+            OLED_clear_frame_buffer();
+            status = Q_HANDLED();
+            break;
+        }
+
+        default: {
+            status = Q_SUPER(&QHsm_top);
+            break;
+        }
+    }
+
+    return status;
+}
+
+static QState World_Lost(World * const me, QEvt const * const e){
+    QState status;
+
+    switch(e->sig){
+        case Q_ENTRY_SIG: {
+            status = Q_HANDLED();
+            break;
+        }
+
+        case TIME_SIG: {
+            
+            OLED_set_char('Y', 12, 24);
+            OLED_set_char('o', 24, 24);
+            OLED_set_char('u', 36, 24);
+            OLED_set_char(' ', 48, 24);
+            OLED_set_char('L', 60, 24);
+            OLED_set_char('o', 72, 24);
+            OLED_set_char('s', 84, 24);
+            OLED_set_char('e', 96, 24);
+            OLED_set_char('!', 108, 24);
             
             OLED_send_frame();
             OLED_clear_frame_buffer();

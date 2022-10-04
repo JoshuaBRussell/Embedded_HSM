@@ -17,6 +17,8 @@
 
 #define MISS_CUSTOM_OFFSET_X 9
 
+#define DYING_TIMER_COUNT 10
+
 static const uint8_t Tank_arr[] = {
 	0x00, 0x3c, 0x00, 0x01, 0xff, 0x80, 0x06, 0x66, 0x60, 0x06, 0x66, 0x60, 0x1e, 0x66, 0x78, 0xfe, 
     0x66, 0x7f, 0xfe, 0x66, 0x7f, 0xfe, 0x66, 0x7f, 0xfe, 0x66, 0x7f, 0x00, 0x00, 0x00
@@ -33,6 +35,8 @@ typedef struct{
 
     int x;
     int y;
+
+    int dying_counter;
 } Tank;
 
 //Define Tank AO
@@ -58,6 +62,7 @@ static bool doBmpImagesOverlap(int Ax1, int Ay1, int Ax2, int Ay2,
 
 static QState Tank_initial(Tank * const me, void const * const par);
 static QState Tank_Active(Tank * const me, QEvt const * const e);
+static QState Tank_Dying(Tank * const me, QEvt const * const e);
 
 
 
@@ -196,17 +201,58 @@ static QState Tank_Active(Tank * const me, QEvt const * const e){
                 }
 
             }
-            status = Q_HANDLED();
+            
             if(is_hit){
                 printf("Fireball HIT the Tank! Oh no!");
-                // QEvt *score_evt = Q_NEW(QEvt, INC_SCORE);
-                // QF_PUBLISH(score_evt, me);
+                QEvt *score_evt = Q_NEW(QEvt, DEC_SCORE);
+                QF_PUBLISH(score_evt, me);
 
-                // status = Q_TRAN(&Enemy_Dying1);
+                status = Q_TRAN(&Tank_Dying);
+           
             } else {
-                    status = Q_HANDLED();
+                status = Q_HANDLED();
             }
 
+    
+            break;
+        }
+
+        default: {
+            status = Q_SUPER(&QHsm_top);
+            break;
+        }
+    }
+
+    return status;
+}
+
+static QState Tank_Dying(Tank * const me, QEvt const * const e){
+    QState status;
+
+    switch(e->sig){
+        case Q_ENTRY_SIG: {
+
+            me->dying_counter = DYING_TIMER_COUNT;
+            status = Q_HANDLED();
+            break;
+        }
+
+        case TIME_SIG: {
+ 
+            me->dying_counter--;
+
+            BmpImageEvt *ship_evt = Q_NEW(BmpImageEvt, SHIP_POS);
+            ship_evt->x = me->x;
+            ship_evt->y = me->y;
+            ship_evt->bmp_img = &Tank_img;
+            QF_PUBLISH((QEvt *)ship_evt, me);
+
+            if (me->dying_counter == 0){
+                status = Q_TRAN(&Tank_Active);
+            } else {
+                status = Q_HANDLED();
+            }
+ 
             break;
         }
 
