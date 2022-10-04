@@ -41,6 +41,20 @@ static Tank local_tank;
 //Set the opaque pointer to point the correct
 QActive * const AO_Tank = &local_tank.super;
 
+static int max(int x, int y){
+    return ((x > y) ? x : y);
+}
+
+static int min(int x, int y){
+    return ((x < y) ? x : y);
+}
+
+
+static bool doBmpImagesOverlap(int Ax1, int Ay1, int Ax2, int Ay2, 
+                               int Bx1, int By1, int Bx2, int By2){
+    return (Bx1 < Ax2) && (Bx2 > Ax1) && (By1 < Ay2) && (By2 > Ay1);
+}
+
 
 static QState Tank_initial(Tank * const me, void const * const par);
 static QState Tank_Active(Tank * const me, QEvt const * const e);
@@ -56,6 +70,7 @@ static QState Tank_initial(Tank * const me, void const * const par){
     (void)par;
 
     QActive_subscribe(&me->super, TIME_SIG);
+    QActive_subscribe(&me->super, FIRE_POS);
 
     BSP_setup();
 
@@ -107,6 +122,91 @@ static QState Tank_Active(Tank * const me, QEvt const * const e){
             }
 
             status = Q_HANDLED();
+            break;
+        }
+
+        case FIRE_POS: {
+
+            int fireball_x_pos = Q_EVT_CAST(BmpImageEvt)->x;
+            int fireball_y_pos = Q_EVT_CAST(BmpImageEvt)->y;
+            int fireball_bmp_width = (Q_EVT_CAST(BmpImageEvt)->bmp_img)->bitmap_width;
+            int fireball_bmp_height = (Q_EVT_CAST(BmpImageEvt)->bmp_img)->bitmap_height;
+
+            //Check for overlap between the fireball and tank BMP images.
+            bool is_hit = false;
+            if (doBmpImagesOverlap(me->x, me->y, me->x + Tank_img.bitmap_width*8, me->y + Tank_img.bitmap_height, 
+                                   fireball_x_pos, fireball_y_pos, fireball_x_pos + fireball_bmp_width*8, fireball_y_pos + fireball_bmp_height)){
+                
+                printf("Overlap Exist!\n");
+
+                //Lowest - Upper Coord
+                int overlap_y1 = max(me->y, fireball_y_pos);
+
+                //Highest - Lower Coord
+                int overlap_y2 = min(me->y+Tank_img.bitmap_height - 1, fireball_y_pos+fireball_bmp_height - 1);
+
+                //Right Most - Left Coord
+                int overlap_x1 = max(me->x, fireball_x_pos);
+
+                //Left Most - Right Coord
+                int overlap_x2 = min(me->x + Tank_img.bitmap_width*8 - 1, fireball_x_pos + fireball_bmp_width*8 - 1);
+
+
+                printf("[1](%d,%d)\n",overlap_x1, overlap_y1);
+                printf("[2](%d,%d)\n",overlap_x2, overlap_y2);
+
+                int const MSb_bit_shift[] = {7, 6, 5, 4, 3, 2, 1, 0};
+
+                //The overall method is to look at each absolute pixel value location in the overlap window.
+                //The absolute pixel value is converted to a relative pixel value in the respective BMP image.
+                //Then the pixel value at the BMP images relative location is found (for both BMP images)
+                //Finally, the two are compared to determine if there is an overlap. 
+
+                
+                for(int y_index = overlap_y1; y_index <= overlap_y2; y_index++){
+                    for(int x_index = overlap_x1; x_index <= overlap_x2; x_index++){
+
+                        //Get Tank Pixel Value
+                        int tank_rel_x_coord = (x_index - me->x);
+                        int tank_rel_y_coord = (y_index - me->y);
+
+                        int tank_byte_index = (tank_rel_y_coord * Tank_img.bitmap_width) + tank_rel_x_coord/8;
+                        int tank_bit_index = MSb_bit_shift[tank_rel_x_coord%8]; 
+
+                        uint8_t row_byte = Tank_arr[tank_byte_index];
+                        bool tank_bit = (row_byte >> tank_bit_index) & 0x01;
+
+                        
+                        //Get Missile Pixel Value
+                        int fireball_rel_x_coord = (x_index - me->x);
+                        int fireball_rel_y_coord = (y_index - me->y);
+
+                        int fireball_byte_index = (fireball_rel_y_coord * (Q_EVT_CAST(BmpImageEvt)->bmp_img)->bitmap_width) + fireball_rel_x_coord/8;
+                        int fireball_bit_index = MSb_bit_shift[fireball_rel_x_coord%8]; 
+
+                        row_byte = *((Q_EVT_CAST(BmpImageEvt)->bmp_img)->byte_array+ fireball_byte_index);
+                        bool fireball_bit = (row_byte >> fireball_bit_index) & 0x01;
+                        
+                        
+                        if(fireball_bit && tank_bit){
+                            is_hit = true;
+                        } 
+
+                    }
+                }
+
+            }
+            status = Q_HANDLED();
+            if(is_hit){
+                printf("Fireball HIT the Tank! Oh no!");
+                // QEvt *score_evt = Q_NEW(QEvt, INC_SCORE);
+                // QF_PUBLISH(score_evt, me);
+
+                // status = Q_TRAN(&Enemy_Dying1);
+            } else {
+                    status = Q_HANDLED();
+            }
+
             break;
         }
 
