@@ -4,6 +4,7 @@
 #include "qpc.h"
 #include "stdio.h"
 #include "stdbool.h"
+#include <math.h>
 
 #define DYING_TIMER_COUNT 10
 
@@ -57,6 +58,12 @@ typedef struct{
     int fireball_x;
     int fireball_y;
 
+    int fireball_vx;
+    int fireball_vy;
+
+    int ship_pos_x;
+    int ship_pos_y;
+
     uint8_t dying_counter;
     uint8_t timing_counter;
 } Enemy;
@@ -103,12 +110,16 @@ static QState Enemy_initial(Enemy * const me, void const * const par){
 
     QActive_subscribe(&me->super, TIME_SIG);
     QActive_subscribe(&me->super, MISS_POS);
+    QActive_subscribe(&me->super, SHIP_POS);
     
     me->x = 0;
     me->y = 0;
 
     me->fireball_x = 0;
-    me->fireball_y = 0;
+    me->fireball_y = 100;
+
+    me->fireball_vx = 0;
+    me->fireball_vy = 0;
 
     return Q_TRAN(&Enemy_Inactive);
 }
@@ -167,12 +178,26 @@ static QState Enemy_Active(Enemy * const me, QEvt const * const e){
             enemy_evt->bmp_img = &Enemy_img;
             QF_PUBLISH((QEvt *)enemy_evt, me);
 
-            if ((me->timing_counter%30 == 0) && (me->fireball_y > 64)){
+            if ((me->timing_counter%30 == 0) && (me->fireball_y > 64 || me->fireball_x < 0 || me->fireball_x > 128)){
+                printf("Firing enemy projectile!\n");
                 me->fireball_x = me->x;
                 me->fireball_y = me->y;
-            }
-            me->fireball_y += 2;
 
+                // Find the velocity to apply to the enemy projectile //
+                double delta_x = (double)(me->ship_pos_x - me->x);
+                double delta_y = (double)(me->ship_pos_y - me->y);
+                
+                //Normalize the velocity
+                double delta_mag = sqrt(delta_x*delta_x + delta_y*delta_y);
+                me->fireball_vx = (int)(2.5*delta_x/delta_mag);
+                me->fireball_vy = (int)(2.5*delta_y/delta_mag);
+                printf("Vx: %f", (2.0*delta_x/delta_mag));
+                printf("Vy: %f", (2.0*delta_y/delta_mag));
+            }
+            
+            me->fireball_x += me->fireball_vx;
+            me->fireball_y += me->fireball_vy;
+            
             BmpImageEvt *fireball_evt = Q_NEW(BmpImageEvt, FIRE_POS);
             fireball_evt->x = me->fireball_x;
             fireball_evt->y = me->fireball_y;
@@ -266,6 +291,16 @@ static QState Enemy_Active(Enemy * const me, QEvt const * const e){
                     status = Q_HANDLED();
             }
 
+            break;
+        }
+
+        case SHIP_POS: {
+
+            //Update the enemy's knowledge of where the ship is
+            me->ship_pos_x = Q_EVT_CAST(BmpImageEvt)->x;
+            me->ship_pos_y = Q_EVT_CAST(BmpImageEvt)->y;
+
+            status = Q_HANDLED();
             break;
         }
 
