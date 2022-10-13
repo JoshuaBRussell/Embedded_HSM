@@ -141,7 +141,7 @@ QS_SRCS := \
 	qs_fp.c \
 	qs_port.c
 
-LIBS += -lpthread
+LIBS += -lpthread -lm
 
 endif
 
