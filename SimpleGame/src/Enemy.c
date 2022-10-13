@@ -178,6 +178,7 @@ static QState Enemy_Active(Enemy * const me, QEvt const * const e){
             enemy_evt->bmp_img = &Enemy_img;
             QF_PUBLISH((QEvt *)enemy_evt, me);
 
+            //If the timer is at 30 time units AND the fireball is outsie of the screen (64 and 128 are the screen height and width respectively)
             if ((me->timing_counter%30 == 0) && (me->fireball_y > 64 || me->fireball_x < 0 || me->fireball_x > 128)){
                 printf("Firing enemy projectile!\n");
                 me->fireball_x = me->x;
