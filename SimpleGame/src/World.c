@@ -27,7 +27,7 @@ static World local_world;
 //Set the opaque pointer to point to the World AO
 QActive * const AO_World = &local_world.super;
 
-static void dispaly_score(int score){
+static void display_score(int score){
     OLED_set_char(' ', 0, 0);
     OLED_set_char(' ', 12, 0);
     if(score >= 0){
@@ -87,7 +87,7 @@ static QState World_Active(World * const me, QEvt const * const e){
         }
 
         case TIME_SIG: {
-            dispaly_score(me->score);
+            display_score(me->score);
             
             OLED_send_frame();
             OLED_clear_frame_buffer();
