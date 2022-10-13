@@ -63,6 +63,15 @@ static QState World_initial(World * const me, void const * const par){
 
     OLED_setup();
 
+    //Clear the screen by first setting all pixels to an on state
+    OLED_clear_frame_buffer();
+    for (int i = 0; i < PIXEL_HEIGHT; i++){
+        for (int j = 0; j < PIXEL_WIDTH; j++){
+            OLED_set_pixel(j, i, true);
+        }
+    }
+    OLED_send_frame();
+
     me->score = 0;
 
     return Q_TRAN(&World_Active);
