@@ -7,6 +7,7 @@
 #include <math.h>
 
 #define DYING_TIMER_COUNT 10
+#define FIREBALL_SPEED_SF 2.5
 
 static int const x_enemy_pos[] = {0, 1, 2, 5, 8, 13, 18, 24, 31, 38, 46, 54, 62, 70, 78, 
                                   86, 94, 101, 107, 113, 118, 122, 125, 127, 128, 128, 127, 
@@ -190,8 +191,8 @@ static QState Enemy_Active(Enemy * const me, QEvt const * const e){
                 
                 //Normalize the velocity
                 double delta_mag = sqrt(delta_x*delta_x + delta_y*delta_y);
-                me->fireball_vx = (int)(2.5*delta_x/delta_mag);
-                me->fireball_vy = (int)(2.5*delta_y/delta_mag);
+                me->fireball_vx = (int)(FIREBALL_SPEED_SF*delta_x/delta_mag);
+                me->fireball_vy = (int)(FIREBALL_SPEED_SF*delta_y/delta_mag);
                 printf("Vx: %f", (2.0*delta_x/delta_mag));
                 printf("Vy: %f", (2.0*delta_y/delta_mag));
             }
