@@ -43,6 +43,7 @@ static QState Missile_initial(Missile * const me, void const * const par){
 
     QActive_subscribe(&me->super, TIME_SIG);
     QActive_subscribe(&me->super, MISS_FIRE);
+    QActive_subscribe(&me->super, INC_SCORE);
 
     me->x = 52;
     me->y = 50;
@@ -107,6 +108,16 @@ static QState Missile_Active(Missile * const me, QEvt const * const e){
                 status = Q_HANDLED();    
             }
             
+            break;
+        }
+
+        //If the INC_SCORE event is received, this means the missile destroyed the enemy.
+        case INC_SCORE: {
+
+            //Simply teleport the missile outside of the screen area. 
+            me->x = -10;
+            me->y = -10;
+            status = Q_HANDLED();
             break;
         }
 
