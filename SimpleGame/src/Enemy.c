@@ -112,6 +112,7 @@ static QState Enemy_initial(Enemy * const me, void const * const par){
     QActive_subscribe(&me->super, TIME_SIG);
     QActive_subscribe(&me->super, MISS_POS);
     QActive_subscribe(&me->super, SHIP_POS);
+    QActive_subscribe(&me->super, DEC_SCORE);
     
     me->x = 0;
     me->y = 0;
@@ -303,6 +304,21 @@ static QState Enemy_Active(Enemy * const me, QEvt const * const e){
             me->ship_pos_y = Q_EVT_CAST(BmpImageEvt)->y;
 
             status = Q_HANDLED();
+            break;
+        }
+
+        //If the DEC_SCORE is received, this means the Tank entity was hit by the enemy projectile. 
+        case DEC_SCORE: {
+
+            //move the fireball somewhere out of the screen view 
+            me->fireball_x = -10;
+            me->fireball_y = -10;
+
+            // Set velocity to zero so it doesn't move back into camera view
+            me->fireball_vx = 0;
+            me->fireball_vy = 0; 
+            status = Q_HANDLED();
+
             break;
         }
 
