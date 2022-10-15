@@ -112,11 +112,11 @@ static QState Tank_Active(Tank * const me, QEvt const * const e){
                 me->x+=X_STEP_UPDATE;
             }
 
-            BmpImageEvt *ship_evt = Q_NEW(BmpImageEvt, SHIP_POS);
-            ship_evt->x = me->x;
-            ship_evt->y = me->y;
-            ship_evt->bmp_img = &Tank_img;
-            QF_PUBLISH((QEvt *)ship_evt, me);
+            BmpImageEvt *tank_evt = Q_NEW(BmpImageEvt, SHIP_POS);
+            tank_evt->x = me->x;
+            tank_evt->y = me->y;
+            tank_evt->bmp_img = &Tank_img;
+            QF_PUBLISH((QEvt *)tank_evt, me);
 
             if(BSP_isActionButtonPressed()){
                 BmpImageEvt *miss_fire_evt = Q_NEW(BmpImageEvt, MISS_FIRE);
@@ -241,11 +241,11 @@ static QState Tank_Dying(Tank * const me, QEvt const * const e){
  
             me->dying_counter--;
 
-            BmpImageEvt *ship_evt = Q_NEW(BmpImageEvt, SHIP_POS);
-            ship_evt->x = me->x;
-            ship_evt->y = me->y;
-            ship_evt->bmp_img = &Tank_img;
-            QF_PUBLISH((QEvt *)ship_evt, me);
+            BmpImageEvt *tank_evt = Q_NEW(BmpImageEvt, SHIP_POS);
+            tank_evt->x = me->x;
+            tank_evt->y = me->y;
+            tank_evt->bmp_img = &Tank_img;
+            QF_PUBLISH((QEvt *)tank_evt, me);
 
             if (me->dying_counter == 0){
                 status = Q_TRAN(&Tank_Active);
